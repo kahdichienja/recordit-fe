@@ -1,5 +1,4 @@
 import { Box, Typography, IconButton } from '@mui/material';
-import AppleIcon from '@mui/icons-material/Apple';
 import WifiIcon from '@mui/icons-material/Wifi';
 import BatteryFullIcon from '@mui/icons-material/BatteryFull';
 import { useState, useEffect } from 'react';
