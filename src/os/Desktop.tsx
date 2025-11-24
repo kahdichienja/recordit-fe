@@ -95,7 +95,7 @@ export const Desktop = () => {
     const { windows, openApp } = useWindowManager();
 
     const apps = [
-        // ... (apps array remains the same)
+
         {
             id: 'recordit',
             title: 'RecordIt',
