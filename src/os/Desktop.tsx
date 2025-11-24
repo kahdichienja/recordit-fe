@@ -18,7 +18,7 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import SpeedIcon from '@mui/icons-material/Speed';
 import { logo } from '../assets/index';
 
-const DesktopIcon = ({ app, openApp, index }: { app: any, openApp: any, index: number }) => {
+const DesktopIcon = ({ app, openApp }: { app: any, openApp: any, index: number }) => {
     const [lastTap, setLastTap] = useState(0);
 
     const handleTap = () => {
