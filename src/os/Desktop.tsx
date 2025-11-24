@@ -8,6 +8,7 @@ import { Window } from './components/Window';
 import { RecordItApp } from './apps/RecordItApp';
 import { PrivacyApp } from './apps/PrivacyApp';
 import { TermsApp } from './apps/TermsApp';
+import { AboutApp } from './apps/AboutApp';
 import SecurityIcon from '@mui/icons-material/Security';
 import DescriptionIcon from '@mui/icons-material/Description';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -118,7 +119,7 @@ export const Desktop = () => {
         {
             id: 'about',
             title: 'About RecordIt OS',
-            component: <Box p={4} textAlign="center"><Typography variant="h4">RecordIt OS v1.0</Typography><Typography color="text.secondary">macOS Tahoe Concept</Typography></Box>,
+            component: <AboutApp />,
             icon: <InfoIcon sx={{ fontSize: 32, color: '#FFB74D' }} />
         }
     ];

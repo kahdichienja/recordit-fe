@@ -3,6 +3,7 @@ import AppleIcon from '@mui/icons-material/Apple';
 import WifiIcon from '@mui/icons-material/Wifi';
 import BatteryFullIcon from '@mui/icons-material/BatteryFull';
 import { useState, useEffect } from 'react';
+import { logo } from '../../assets/index';
 
 export const MenuBar = () => {
     const [time, setTime] = useState(new Date());
@@ -52,7 +53,7 @@ export const MenuBar = () => {
             {/* Left Side */}
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
                 <IconButton size="small" sx={{ color: 'white', p: 0 }}>
-                    <AppleIcon fontSize="small" />
+                    <img src={logo} alt="Logo" height={24} width={24} />
                 </IconButton>
                 <Typography variant="body2" fontWeight={700}>RecordIt POS</Typography>
 
