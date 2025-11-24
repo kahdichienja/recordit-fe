@@ -56,15 +56,8 @@ export const MenuBar = () => {
                 <IconButton size="small" sx={{ color: 'white', p: 0 }}>
                     <AppleIcon fontSize="small" />
                 </IconButton>
-                <Typography variant="body2" fontWeight={700}>RecordIt OS</Typography>
-                <Box sx={{ display: { xs: 'none', md: 'flex' }, gap: 3 }}>
-                    <Typography variant="body2">File</Typography>
-                    <Typography variant="body2">Edit</Typography>
-                    <Typography variant="body2">View</Typography>
-                    <Typography variant="body2">Go</Typography>
-                    <Typography variant="body2">Window</Typography>
-                    <Typography variant="body2">Help</Typography>
-                </Box>
+                <Typography variant="body2" fontWeight={700}>RecordIt POS</Typography>
+
             </Box>
 
             {/* Right Side */}
@@ -72,8 +65,6 @@ export const MenuBar = () => {
                 <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 2, alignItems: 'center' }}>
                     <BatteryFullIcon fontSize="small" />
                     <WifiIcon fontSize="small" />
-                    <SearchIcon fontSize="small" />
-                    <ControlCenterIcon fontSize="small" />
                 </Box>
                 <Typography variant="body2" fontWeight={600}>
                     {formatDate(time)}

@@ -9,6 +9,10 @@ export interface AppInstance {
     isMinimized: boolean;
     isMaximized: boolean;
     zIndex: number;
+    width: number;
+    height: number;
+    x: number;
+    y: number;
 }
 
 interface WindowContextType {
@@ -19,6 +23,7 @@ interface WindowContextType {
     minimizeWindow: (id: string) => void;
     maximizeWindow: (id: string) => void;
     focusWindow: (id: string) => void;
+    updateWindow: (id: string, updates: Partial<AppInstance>) => void;
 }
 
 const WindowContext = createContext<WindowContextType | undefined>(undefined);
@@ -50,6 +55,10 @@ export const WindowProvider = ({ children }: { children: ReactNode }) => {
             isMinimized: false,
             isMaximized: false,
             zIndex: zIndexCounter + 1,
+            width: 900,
+            height: 600,
+            x: 100 + (windows.length * 30),
+            y: 100 + (windows.length * 30),
         };
 
         setZIndexCounter((prev) => prev + 1);
@@ -88,6 +97,12 @@ export const WindowProvider = ({ children }: { children: ReactNode }) => {
         setActiveWindowId(id);
     };
 
+    const updateWindow = (id: string, updates: Partial<AppInstance>) => {
+        setWindows((prev) =>
+            prev.map((w) => (w.id === id ? { ...w, ...updates } : w))
+        );
+    };
+
     return (
         <WindowContext.Provider
             value={{
@@ -98,6 +113,7 @@ export const WindowProvider = ({ children }: { children: ReactNode }) => {
                 minimizeWindow,
                 maximizeWindow,
                 focusWindow,
+                updateWindow,
             }}
         >
             {children}

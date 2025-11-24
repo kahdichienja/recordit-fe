@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import { motion, useDragControls } from 'framer-motion';
 import { Box, Typography, useTheme } from '@mui/material';
 import { type AppInstance, useWindowManager } from '../context/WindowManager';
@@ -9,8 +8,7 @@ interface WindowProps {
 
 export const Window = ({ window }: WindowProps) => {
     const theme = useTheme();
-    const { closeWindow, minimizeWindow, maximizeWindow, focusWindow, activeWindowId } = useWindowManager();
-    const constraintsRef = useRef(null);
+    const { closeWindow, minimizeWindow, maximizeWindow, focusWindow, updateWindow, activeWindowId } = useWindowManager();
     const dragControls = useDragControls();
 
     const isActive = activeWindowId === window.id;
@@ -21,22 +19,35 @@ export const Window = ({ window }: WindowProps) => {
             dragListener={false}
             dragControls={dragControls}
             dragMomentum={false}
-            initial={{ scale: 0.9, opacity: 0, y: 20 }}
+            initial={{
+                scale: 0.9,
+                opacity: 0,
+                x: window.x,
+                y: window.y,
+                width: window.width,
+                height: window.height
+            }}
             animate={{
                 scale: window.isMinimized ? 0 : window.isMaximized ? 1 : 1,
                 opacity: window.isMinimized ? 0 : 1,
-                y: window.isMinimized ? 200 : 0,
-                width: window.isMaximized ? '100vw' : 'min(90vw, 1200px)',
-                height: window.isMaximized ? 'calc(100vh - 32px)' : 'min(80vh, 800px)',
-                x: window.isMaximized ? 0 : undefined,
-                top: window.isMaximized ? 32 : undefined,
-                left: window.isMaximized ? 0 : undefined,
+                x: window.isMaximized ? 0 : window.x,
+                y: window.isMaximized ? 0 : window.isMinimized ? window.y + 200 : window.y,
+                width: window.isMaximized ? '100vw' : window.width,
+                height: window.isMaximized ? 'calc(100vh - 32px)' : window.height,
+                top: window.isMaximized ? 32 : 0,
+                left: window.isMaximized ? 0 : 0,
+            }}
+            onDragEnd={(_, info) => {
+                if (!window.isMaximized) {
+                    updateWindow(window.id, {
+                        x: window.x + info.offset.x,
+                        y: window.y + info.offset.y,
+                    });
+                }
             }}
             style={{
-                position: window.isMaximized ? 'fixed' : 'absolute',
+                position: 'absolute',
                 zIndex: window.zIndex,
-                top: '10%',
-                left: '10%',
             }}
             onPointerDown={() => focusWindow(window.id)}
         >
@@ -55,6 +66,7 @@ export const Window = ({ window }: WindowProps) => {
                         : '0 10px 30px rgba(0,0,0,0.3)',
                     overflow: 'hidden',
                     transition: 'box-shadow 0.2s',
+                    position: 'relative',
                 }}
             >
                 {/* Title Bar */}
@@ -73,6 +85,7 @@ export const Window = ({ window }: WindowProps) => {
                         '&:active': { cursor: window.isMaximized ? 'default' : 'grabbing' },
                         userSelect: 'none',
                         background: 'linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(255,255,255,0))',
+                        flexShrink: 0,
                     }}
                 >
                     {/* Window Controls */}
@@ -131,7 +144,7 @@ export const Window = ({ window }: WindowProps) => {
                             textAlign: 'center',
                             fontWeight: 600,
                             color: isActive ? 'text.primary' : 'text.secondary',
-                            mr: 8, // Balance the controls width
+                            mr: 8,
                         }}
                     >
                         {window.title}
@@ -149,6 +162,45 @@ export const Window = ({ window }: WindowProps) => {
                 >
                     {window.component}
                 </Box>
+
+                {/* Resize Handle */}
+                {!window.isMaximized && (
+                    <motion.div
+                        drag
+                        dragMomentum={false}
+                        dragConstraints={{ left: 0, top: 0, right: 0, bottom: 0 }}
+                        dragElastic={0}
+                        onDrag={(_, info) => {
+                            updateWindow(window.id, {
+                                width: Math.max(400, (window.width as number) + info.delta.x),
+                                height: Math.max(300, (window.height as number) + info.delta.y),
+                            });
+                        }}
+                        style={{
+                            position: 'absolute',
+                            bottom: 0,
+                            right: 0,
+                            width: 20,
+                            height: 20,
+                            cursor: 'nwse-resize',
+                            zIndex: 10,
+                        }}
+                    >
+                        {/* Visual indicator for resize handle */}
+                        <Box
+                            sx={{
+                                position: 'absolute',
+                                bottom: 4,
+                                right: 4,
+                                width: 0,
+                                height: 0,
+                                borderStyle: 'solid',
+                                borderWidth: '0 0 8px 8px',
+                                borderColor: 'transparent transparent rgba(255,255,255,0.3) transparent',
+                            }}
+                        />
+                    </motion.div>
+                )}
             </Box>
         </motion.div>
     );
