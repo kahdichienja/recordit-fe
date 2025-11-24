@@ -13,6 +13,51 @@ export const Window = ({ window }: WindowProps) => {
 
     const isActive = activeWindowId === window.id;
 
+    const handleResize = (direction: string, delta: { x: number; y: number }) => {
+        const newUpdates: Partial<AppInstance> = {};
+        const minWidth = 400;
+        const minHeight = 300;
+
+        if (direction.includes('e')) {
+            newUpdates.width = Math.max(minWidth, (window.width as number) + delta.x);
+        }
+        if (direction.includes('s')) {
+            newUpdates.height = Math.max(minHeight, (window.height as number) + delta.y);
+        }
+        if (direction.includes('w')) {
+            const newWidth = Math.max(minWidth, (window.width as number) - delta.x);
+            if (newWidth > minWidth) {
+                newUpdates.width = newWidth;
+                newUpdates.x = (window.x as number) + delta.x;
+            }
+        }
+        if (direction.includes('n')) {
+            const newHeight = Math.max(minHeight, (window.height as number) - delta.y);
+            if (newHeight > minHeight) {
+                newUpdates.height = newHeight;
+                newUpdates.y = (window.y as number) + delta.y;
+            }
+        }
+
+        updateWindow(window.id, newUpdates);
+    };
+
+    const ResizeHandle = ({ cursor, direction, style }: { cursor: string; direction: string; style: any }) => (
+        <motion.div
+            drag
+            dragMomentum={false}
+            dragConstraints={{ left: 0, top: 0, right: 0, bottom: 0 }}
+            dragElastic={0}
+            onDrag={(_, info) => handleResize(direction, info.delta)}
+            style={{
+                position: 'absolute',
+                zIndex: 20,
+                cursor,
+                ...style,
+            }}
+        />
+    );
+
     return (
         <motion.div
             drag={!window.isMaximized}
@@ -57,12 +102,12 @@ export const Window = ({ window }: WindowProps) => {
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
-                    backgroundColor: 'rgba(20, 20, 20, 0.75)',
+                    backgroundColor: 'background.paper',
                     backdropFilter: 'blur(20px)',
                     borderRadius: window.isMaximized ? 0 : '12px',
                     border: '1px solid rgba(255, 255, 255, 0.1)',
                     boxShadow: isActive
-                        ? '0 20px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1)'
+                        ? `0 20px 50px rgba(0,0,0,0.5), 0 0 0 1px ${theme.palette.secondary.main}`
                         : '0 10px 30px rgba(0,0,0,0.3)',
                     overflow: 'hidden',
                     transition: 'box-shadow 0.2s',
@@ -163,43 +208,21 @@ export const Window = ({ window }: WindowProps) => {
                     {window.component}
                 </Box>
 
-                {/* Resize Handle */}
+                {/* Resize Handles */}
                 {!window.isMaximized && (
-                    <motion.div
-                        drag
-                        dragMomentum={false}
-                        dragConstraints={{ left: 0, top: 0, right: 0, bottom: 0 }}
-                        dragElastic={0}
-                        onDrag={(_, info) => {
-                            updateWindow(window.id, {
-                                width: Math.max(400, (window.width as number) + info.delta.x),
-                                height: Math.max(300, (window.height as number) + info.delta.y),
-                            });
-                        }}
-                        style={{
-                            position: 'absolute',
-                            bottom: 0,
-                            right: 0,
-                            width: 20,
-                            height: 20,
-                            cursor: 'nwse-resize',
-                            zIndex: 10,
-                        }}
-                    >
-                        {/* Visual indicator for resize handle */}
-                        <Box
-                            sx={{
-                                position: 'absolute',
-                                bottom: 4,
-                                right: 4,
-                                width: 0,
-                                height: 0,
-                                borderStyle: 'solid',
-                                borderWidth: '0 0 8px 8px',
-                                borderColor: 'transparent transparent rgba(255,255,255,0.3) transparent',
-                            }}
-                        />
-                    </motion.div>
+                    <>
+                        {/* Corners */}
+                        <ResizeHandle cursor="nw-resize" direction="nw" style={{ top: 0, left: 0, width: 10, height: 10 }} />
+                        <ResizeHandle cursor="ne-resize" direction="ne" style={{ top: 0, right: 0, width: 10, height: 10 }} />
+                        <ResizeHandle cursor="sw-resize" direction="sw" style={{ bottom: 0, left: 0, width: 10, height: 10 }} />
+                        <ResizeHandle cursor="se-resize" direction="se" style={{ bottom: 0, right: 0, width: 10, height: 10 }} />
+
+                        {/* Edges */}
+                        <ResizeHandle cursor="n-resize" direction="n" style={{ top: 0, left: 10, right: 10, height: 5 }} />
+                        <ResizeHandle cursor="s-resize" direction="s" style={{ bottom: 0, left: 10, right: 10, height: 5 }} />
+                        <ResizeHandle cursor="w-resize" direction="w" style={{ left: 0, top: 10, bottom: 10, width: 5 }} />
+                        <ResizeHandle cursor="e-resize" direction="e" style={{ right: 0, top: 10, bottom: 10, width: 5 }} />
+                    </>
                 )}
             </Box>
         </motion.div>

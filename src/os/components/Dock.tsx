@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Box, Stack, Tooltip, Typography } from '@mui/material';
 import { useWindowManager } from '../context/WindowManager';
 import type { ReactNode } from 'react';
 
@@ -78,7 +78,11 @@ const DockItem = ({ app, isOpen, onClick }: any) => {
                     mb: 1,
                 }}
             >
-                {app.icon}
+                {/* Tooltip on hover shows name */}
+                <Tooltip title={app.title} placement="top">
+                    {app.icon}
+                </Tooltip>
+
             </Box>
             {isOpen && (
                 <Box

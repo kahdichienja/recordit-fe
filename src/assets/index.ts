@@ -1,0 +1,1 @@
+export const logo = "https://i.ibb.co/JRJXGKDR/cropped-circle-image.png";

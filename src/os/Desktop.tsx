@@ -6,11 +6,11 @@ import { Window } from './components/Window';
 import { RecordItApp } from './apps/RecordItApp';
 import { PrivacyApp } from './apps/PrivacyApp';
 import { TermsApp } from './apps/TermsApp';
-import AppsIcon from '@mui/icons-material/Apps';
 import SecurityIcon from '@mui/icons-material/Security';
 import DescriptionIcon from '@mui/icons-material/Description';
 import SettingsIcon from '@mui/icons-material/Settings';
 import InfoIcon from '@mui/icons-material/Info';
+import {logo} from '../assets/index';   
 
 export const Desktop = () => {
     const { windows } = useWindowManager();
@@ -20,7 +20,7 @@ export const Desktop = () => {
             id: 'recordit',
             title: 'RecordIt',
             component: <RecordItApp />,
-            icon: <AppsIcon sx={{ fontSize: 32, color: '#FF8A80' }} />
+            icon: <img src={logo} alt="Logo"  height={30} width={30}/>
         },
         {
             id: 'privacy',
@@ -53,14 +53,24 @@ export const Desktop = () => {
             sx={{
                 width: '100vw',
                 height: '100vh',
-                backgroundImage: 'url(https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
+                backgroundColor: 'background.default',
                 overflow: 'hidden',
                 position: 'relative',
             }}
         >
-            <Box sx={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)' }} />
+            {/* Ambient Background Gradient */}
+            <Box
+                sx={{
+                    position: 'absolute',
+                    top: '-50%',
+                    left: '-50%',
+                    width: '200%',
+                    height: '200%',
+                    background: 'radial-gradient(circle at center, #2D0A07 0%, #0B0000 50%)',
+                    opacity: 0.6,
+                    pointerEvents: 'none',
+                }}
+            />
 
             <MenuBar />
 
