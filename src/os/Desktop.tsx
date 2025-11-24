@@ -30,9 +30,10 @@ const DesktopIcon = ({ app, openApp, index }: { app: any, openApp: any, index: n
         <motion.div
             drag
             dragMomentum={false}
-            initial={{ x: 20, y: 20 + (index * 100) }}
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
             style={{
-                position: 'absolute',
+                // position: 'absolute', // Handled by parent
                 pointerEvents: 'auto',
                 width: 80,
                 display: 'flex',
@@ -134,19 +135,104 @@ export const Desktop = () => {
                 position: 'relative',
             }}
         >
-            {/* Ambient Background Gradient */}
+            {/* Luxurious Ambient Background */}
             <Box
                 sx={{
                     position: 'absolute',
-                    top: '-50%',
-                    left: '-50%',
-                    width: '200%',
-                    height: '200%',
-                    background: 'radial-gradient(circle at center, #2D0A07 0%, #0B0000 50%)',
-                    opacity: 0.6,
-                    pointerEvents: 'none',
+                    inset: 0,
+                    overflow: 'hidden',
+                    background: 'radial-gradient(circle at center, #1a0505 0%, #000000 100%)', // Lighter center
+                    zIndex: 0,
                 }}
-            />
+            >
+                {/* Deep Red Glow - Top Left */}
+                <Box
+                    component={motion.div}
+                    animate={{
+                        scale: [1, 1.2, 1],
+                        opacity: [0.5, 0.7, 0.5], // Increased opacity
+                    }}
+                    transition={{
+                        duration: 10,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                    }}
+                    sx={{
+                        position: 'absolute',
+                        top: '-20%',
+                        left: '-10%',
+                        width: '70vw',
+                        height: '70vw',
+                        background: 'radial-gradient(circle, rgba(100, 20, 20, 0.6) 0%, rgba(0,0,0,0) 70%)', // Brighter red
+                        filter: 'blur(80px)',
+                    }}
+                />
+
+                {/* Coral/Orange Glow - Bottom Right */}
+                <Box
+                    component={motion.div}
+                    animate={{
+                        scale: [1, 1.1, 1],
+                        opacity: [0.3, 0.5, 0.3], // Increased opacity
+                    }}
+                    transition={{
+                        duration: 8,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: 2
+                    }}
+                    sx={{
+                        position: 'absolute',
+                        bottom: '-20%',
+                        right: '-10%',
+                        width: '60vw',
+                        height: '60vw',
+                        background: 'radial-gradient(circle, rgba(255, 138, 128, 0.25) 0%, rgba(0,0,0,0) 70%)',
+                        filter: 'blur(90px)',
+                    }}
+                />
+
+                {/* Central Subtle Highlight */}
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '100vw',
+                        height: '100vh',
+                        background: 'radial-gradient(circle at center, rgba(60, 10, 10, 0.3) 0%, rgba(0,0,0,0) 100%)',
+                        pointerEvents: 'none',
+                    }}
+                />
+
+                {/* Decorative Circle Element (from reference) */}
+                <Box
+                    component={motion.div}
+                    animate={{ opacity: [0.3, 0.6, 0.3] }} // Pulse opacity
+                    transition={{ duration: 4, repeat: Infinity }}
+                    sx={{
+                        position: 'absolute',
+                        top: '20%',
+                        right: '15%',
+                        width: 300,
+                        height: 300,
+                        borderRadius: '50%',
+                        border: '1px solid rgba(255, 138, 128, 0.5)', // More visible border
+                        display: { xs: 'none', md: 'flex' },
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 0 30px rgba(255, 138, 128, 0.1)',
+                    }}
+                >
+                    <Box sx={{
+                        width: 200,
+                        height: 200,
+                        borderRadius: '50%',
+                        border: '1px solid rgba(255, 138, 128, 0.3)',
+                    }} />
+                </Box>
+            </Box>
 
             {/* Desktop Icons */}
             <Box
@@ -156,6 +242,7 @@ export const Desktop = () => {
                     top: 32, // Below MenuBar
                     zIndex: 1,
                     pointerEvents: 'none', // Allow clicking through empty space
+                    p: 4,
                 }}
             >
                 {apps.filter(app => app.id === 'recordit' || app.id === 'about').map((app, index) => (
