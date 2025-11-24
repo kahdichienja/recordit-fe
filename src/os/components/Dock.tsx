@@ -26,12 +26,16 @@ export const Dock = ({ apps }: DockProps) => {
                 zIndex: 10000,
                 display: 'flex',
                 gap: 2,
-                padding: '12px 24px',
+                padding: { xs: '8px 16px', md: '12px 24px' },
                 backgroundColor: 'rgba(255, 255, 255, 0.1)',
                 backdropFilter: 'blur(20px)',
                 borderRadius: '24px',
                 border: '1px solid rgba(255, 255, 255, 0.1)',
                 boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+                maxWidth: '90vw',
+                overflowX: 'auto',
+                '&::-webkit-scrollbar': { display: 'none' }, // Hide scrollbar
+                scrollbarWidth: 'none', // Hide scrollbar for Firefox
             }}
         >
             {apps.map((app) => {

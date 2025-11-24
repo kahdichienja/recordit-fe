@@ -158,7 +158,7 @@ export const Desktop = () => {
                     pointerEvents: 'none', // Allow clicking through empty space
                 }}
             >
-                {apps.filter(app => app.id === 'recordit').map((app, index) => (
+                {apps.filter(app => app.id === 'recordit' || app.id === 'about').map((app, index) => (
                     <Box onClick={() => openApp(app.id, app.title, app.component)}>
                         <DesktopIcon key={app.id} app={app} openApp={openApp} index={index} />
                     </Box>

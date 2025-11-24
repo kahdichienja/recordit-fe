@@ -33,15 +33,16 @@ export const AboutApp = () => {
         <Box sx={{ minHeight: '100%', color: 'white', pb: 8 }}>
             <Container maxWidth="md" sx={{ pt: 6 }}>
                 {/* Header */}
-                <Box textAlign="center" mb={6}>
+                <Box textAlign="center" mb={{ xs: 4, md: 6 }}>
                     <Typography variant="h3" fontWeight={800} gutterBottom sx={{
                         background: 'linear-gradient(45deg, #FF8A80 30%, #FF5252 90%)',
                         WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent'
+                        WebkitTextFillColor: 'transparent',
+                        fontSize: { xs: '2rem', md: '3rem' }
                     }}>
                         Master RecordIt
                     </Typography>
-                    <Typography variant="h6" color="text.secondary">
+                    <Typography variant="h6" color="text.secondary" sx={{ fontSize: { xs: '1rem', md: '1.25rem' } }}>
                         Learn how to take your business to the next level.
                     </Typography>
                 </Box>
@@ -86,7 +87,7 @@ export const AboutApp = () => {
                         <PlayCircleOutlineIcon
                             className="play-icon"
                             sx={{
-                                fontSize: 80,
+                                fontSize: { xs: 50, md: 80 },
                                 color: 'rgba(255,255,255,0.8)',
                                 position: 'relative',
                                 zIndex: 1,

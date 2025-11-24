@@ -1,6 +1,7 @@
 import { motion, useDragControls } from 'framer-motion';
 import { Box, Typography, useTheme } from '@mui/material';
 import { type AppInstance, useWindowManager } from '../context/WindowManager';
+import { useState, useEffect, useRef } from 'react';
 
 interface WindowProps {
     window: AppInstance;
@@ -10,49 +11,89 @@ export const Window = ({ window }: WindowProps) => {
     const theme = useTheme();
     const { closeWindow, minimizeWindow, maximizeWindow, focusWindow, updateWindow, activeWindowId } = useWindowManager();
     const dragControls = useDragControls();
-
     const isActive = activeWindowId === window.id;
 
-    const handleResize = (direction: string, delta: { x: number; y: number }) => {
-        const newUpdates: Partial<AppInstance> = {};
-        const minWidth = 400;
-        const minHeight = 300;
+    // Resizing State
+    const [isResizing, setIsResizing] = useState(false);
+    const resizeRef = useRef<{ startX: number; startY: number; startWidth: number; startHeight: number; startWindowX: number; startWindowY: number; direction: string } | null>(null);
 
-        if (direction.includes('e')) {
-            newUpdates.width = Math.max(minWidth, (window.width as number) + delta.x);
-        }
-        if (direction.includes('s')) {
-            newUpdates.height = Math.max(minHeight, (window.height as number) + delta.y);
-        }
-        if (direction.includes('w')) {
-            const newWidth = Math.max(minWidth, (window.width as number) - delta.x);
-            if (newWidth > minWidth) {
-                newUpdates.width = newWidth;
-                newUpdates.x = (window.x as number) + delta.x;
-            }
-        }
-        if (direction.includes('n')) {
-            const newHeight = Math.max(minHeight, (window.height as number) - delta.y);
-            if (newHeight > minHeight) {
-                newUpdates.height = newHeight;
-                newUpdates.y = (window.y as number) + delta.y;
-            }
-        }
-
-        updateWindow(window.id, newUpdates);
+    const startResize = (e: React.PointerEvent, direction: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsResizing(true);
+        resizeRef.current = {
+            startX: e.clientX,
+            startY: e.clientY,
+            startWidth: window.width,
+            startHeight: window.height,
+            startWindowX: window.x,
+            startWindowY: window.y,
+            direction
+        };
+        focusWindow(window.id);
     };
 
+    useEffect(() => {
+        const handlePointerMove = (e: PointerEvent) => {
+            if (!isResizing || !resizeRef.current) return;
+
+            const { startX, startY, startWidth, startHeight, startWindowX, startWindowY, direction } = resizeRef.current;
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
+
+            const newUpdates: Partial<AppInstance> = {};
+            const minWidth = 300;
+            const minHeight = 200;
+
+            if (direction.includes('e')) {
+                newUpdates.width = Math.max(minWidth, startWidth + deltaX);
+            }
+            if (direction.includes('s')) {
+                newUpdates.height = Math.max(minHeight, startHeight + deltaY);
+            }
+            if (direction.includes('w')) {
+                const newWidth = Math.max(minWidth, startWidth - deltaX);
+                newUpdates.width = newWidth;
+                // Only update X if width actually changed (to prevent drifting when hitting minWidth)
+                if (newWidth > minWidth || startWidth > minWidth) {
+                    newUpdates.x = startWindowX + (startWidth - newWidth);
+                }
+            }
+            if (direction.includes('n')) {
+                const newHeight = Math.max(minHeight, startHeight - deltaY);
+                newUpdates.height = newHeight;
+                if (newHeight > minHeight || startHeight > minHeight) {
+                    newUpdates.y = startWindowY + (startHeight - newHeight);
+                }
+            }
+
+            updateWindow(window.id, newUpdates);
+        };
+
+        const handlePointerUp = () => {
+            setIsResizing(false);
+            resizeRef.current = null;
+        };
+
+        if (isResizing) {
+            document.addEventListener('pointermove', handlePointerMove);
+            document.addEventListener('pointerup', handlePointerUp);
+        }
+
+        return () => {
+            document.removeEventListener('pointermove', handlePointerMove);
+            document.removeEventListener('pointerup', handlePointerUp);
+        };
+    }, [isResizing, window.id, updateWindow]);
+
     const ResizeHandle = ({ cursor, direction, style }: { cursor: string; direction: string; style: any }) => (
-        <motion.div
-            drag
-            dragMomentum={false}
-            dragConstraints={{ left: 0, top: 0, right: 0, bottom: 0 }}
-            dragElastic={0}
-            onDrag={(_, info) => handleResize(direction, info.delta)}
-            style={{
+        <Box
+            onPointerDown={(e) => startResize(e, direction)}
+            sx={{
                 position: 'absolute',
                 zIndex: 20,
                 cursor,
+                touchAction: 'none', // Important for preventing scrolling on touch devices
                 ...style,
             }}
         />
@@ -93,6 +134,7 @@ export const Window = ({ window }: WindowProps) => {
             style={{
                 position: 'absolute',
                 zIndex: window.zIndex,
+                touchAction: 'none' // Prevent browser handling of gestures
             }}
             onPointerDown={() => focusWindow(window.id)}
         >
@@ -212,16 +254,16 @@ export const Window = ({ window }: WindowProps) => {
                 {!window.isMaximized && (
                     <>
                         {/* Corners */}
-                        <ResizeHandle cursor="nw-resize" direction="nw" style={{ top: 0, left: 0, width: 10, height: 10 }} />
-                        <ResizeHandle cursor="ne-resize" direction="ne" style={{ top: 0, right: 0, width: 10, height: 10 }} />
-                        <ResizeHandle cursor="sw-resize" direction="sw" style={{ bottom: 0, left: 0, width: 10, height: 10 }} />
-                        <ResizeHandle cursor="se-resize" direction="se" style={{ bottom: 0, right: 0, width: 10, height: 10 }} />
+                        <ResizeHandle cursor="nw-resize" direction="nw" style={{ top: 0, left: 0, width: 15, height: 15 }} />
+                        <ResizeHandle cursor="ne-resize" direction="ne" style={{ top: 0, right: 0, width: 15, height: 15 }} />
+                        <ResizeHandle cursor="sw-resize" direction="sw" style={{ bottom: 0, left: 0, width: 15, height: 15 }} />
+                        <ResizeHandle cursor="se-resize" direction="se" style={{ bottom: 0, right: 0, width: 15, height: 15 }} />
 
                         {/* Edges */}
-                        <ResizeHandle cursor="n-resize" direction="n" style={{ top: 0, left: 10, right: 10, height: 5 }} />
-                        <ResizeHandle cursor="s-resize" direction="s" style={{ bottom: 0, left: 10, right: 10, height: 5 }} />
-                        <ResizeHandle cursor="w-resize" direction="w" style={{ left: 0, top: 10, bottom: 10, width: 5 }} />
-                        <ResizeHandle cursor="e-resize" direction="e" style={{ right: 0, top: 10, bottom: 10, width: 5 }} />
+                        <ResizeHandle cursor="n-resize" direction="n" style={{ top: 0, left: 15, right: 15, height: 8 }} />
+                        <ResizeHandle cursor="s-resize" direction="s" style={{ bottom: 0, left: 15, right: 15, height: 8 }} />
+                        <ResizeHandle cursor="w-resize" direction="w" style={{ left: 0, top: 15, bottom: 15, width: 8 }} />
+                        <ResizeHandle cursor="e-resize" direction="e" style={{ right: 0, top: 15, bottom: 15, width: 8 }} />
                     </>
                 )}
             </Box>

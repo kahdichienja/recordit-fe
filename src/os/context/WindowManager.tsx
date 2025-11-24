@@ -46,6 +46,12 @@ export const WindowProvider = ({ children }: { children: ReactNode }) => {
             return;
         }
 
+        const isMobile = window.innerWidth < 768;
+        const defaultWidth = isMobile ? window.innerWidth * 0.9 : 900;
+        const defaultHeight = isMobile ? window.innerHeight * 0.8 : 600;
+        const defaultX = isMobile ? 20 : 100 + (windows.length * 30);
+        const defaultY = isMobile ? 60 : 100 + (windows.length * 30);
+
         const newWindow: AppInstance = {
             id: Math.random().toString(36).substr(2, 9),
             appId,
@@ -55,10 +61,10 @@ export const WindowProvider = ({ children }: { children: ReactNode }) => {
             isMinimized: false,
             isMaximized: false,
             zIndex: zIndexCounter + 1,
-            width: 900,
-            height: 600,
-            x: 100 + (windows.length * 30),
-            y: 100 + (windows.length * 30),
+            width: defaultWidth,
+            height: defaultHeight,
+            x: defaultX,
+            y: defaultY,
         };
 
         setZIndexCounter((prev) => prev + 1);
