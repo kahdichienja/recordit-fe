@@ -1,4 +1,4 @@
-import { Box, Stack, Tooltip, Typography } from '@mui/material';
+import { Box, Tooltip } from '@mui/material';
 import { useWindowManager } from '../context/WindowManager';
 import type { ReactNode } from 'react';
 

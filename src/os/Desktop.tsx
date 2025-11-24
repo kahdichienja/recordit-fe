@@ -10,17 +10,17 @@ import SecurityIcon from '@mui/icons-material/Security';
 import DescriptionIcon from '@mui/icons-material/Description';
 import SettingsIcon from '@mui/icons-material/Settings';
 import InfoIcon from '@mui/icons-material/Info';
-import {logo} from '../assets/index';   
+import { logo } from '../assets/index';
 
 export const Desktop = () => {
-    const { windows } = useWindowManager();
+    const { windows, openApp } = useWindowManager();
 
     const apps = [
         {
             id: 'recordit',
             title: 'RecordIt',
             component: <RecordItApp />,
-            icon: <img src={logo} alt="Logo"  height={30} width={30}/>
+            icon: <img src={logo} alt="Logo" height={30} width={30} />
         },
         {
             id: 'privacy',
@@ -71,6 +71,68 @@ export const Desktop = () => {
                     pointerEvents: 'none',
                 }}
             />
+
+            {/* Desktop Icons */}
+            <Box
+                sx={{
+                    position: 'absolute',
+                    top: 48, // Below MenuBar
+                    left: 16,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 3,
+                    zIndex: 1,
+                }}
+            >
+                {apps.filter(app => app.id === 'recordit').map((app) => (
+                    <Box
+                        key={app.id}
+                        onDoubleClick={() => openApp(app.id, app.title, app.component)}
+                        sx={{
+                            width: 80,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            gap: 1,
+                            cursor: 'pointer',
+                            p: 1,
+                            borderRadius: 2,
+                            '&:hover': {
+                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                            },
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                width: 48,
+                                height: 48,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))',
+                            }}
+                        >
+                            {app.id === 'recordit' ? (
+                                <img src={logo} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                            ) : (
+                                app.icon
+                            )}
+                        </Box>
+                        <Typography
+                            variant="caption"
+                            sx={{
+                                color: 'white',
+                                textShadow: '0 2px 4px rgba(0,0,0,0.8)',
+                                fontWeight: 500,
+                                textAlign: 'center',
+                                lineHeight: 1.2,
+                            }}
+                        >
+                            {app.title}
+                        </Typography>
+                    </Box>
+                ))}
+            </Box>
 
             <MenuBar />
 

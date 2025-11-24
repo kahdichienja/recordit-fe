@@ -2,8 +2,6 @@ import { Box, Typography, IconButton } from '@mui/material';
 import AppleIcon from '@mui/icons-material/Apple';
 import WifiIcon from '@mui/icons-material/Wifi';
 import BatteryFullIcon from '@mui/icons-material/BatteryFull';
-import SearchIcon from '@mui/icons-material/Search';
-import ControlCenterIcon from '@mui/icons-material/Tune'; // Placeholder for Control Center
 import { useState, useEffect } from 'react';
 
 export const MenuBar = () => {
