@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { Box, Typography } from '@mui/material';
+import { motion } from 'framer-motion';
 import { useWindowManager } from './context/WindowManager';
 import { MenuBar } from './components/MenuBar';
 import { Dock } from './components/Dock';
@@ -12,10 +14,83 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import InfoIcon from '@mui/icons-material/Info';
 import { logo } from '../assets/index';
 
+const DesktopIcon = ({ app, openApp, index }: { app: any, openApp: any, index: number }) => {
+    const [lastTap, setLastTap] = useState(0);
+
+    const handleTap = () => {
+        const now = Date.now();
+        if (now - lastTap < 300) {
+            openApp(app.id, app.title, app.component);
+        }
+        setLastTap(now);
+    };
+
+    return (
+        <motion.div
+            drag
+            dragMomentum={false}
+            initial={{ x: 20, y: 20 + (index * 100) }}
+            style={{
+                position: 'absolute',
+                pointerEvents: 'auto',
+                width: 80,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 8,
+                cursor: 'pointer',
+            }}
+            onTap={handleTap}
+        >
+            <Box
+                sx={{
+                    width: 64,
+                    height: 64,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: 2,
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    backdropFilter: 'blur(4px)',
+                    border: '1px solid rgba(255, 255, 255, 0.1)',
+                    transition: 'background-color 0.2s',
+                    '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                    },
+                    p: 1,
+                }}
+            >
+                {app.id === 'recordit' ? (
+                    <img src={logo} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))' }} />
+                ) : (
+                    app.icon
+                )}
+            </Box>
+            <Typography
+                variant="caption"
+                sx={{
+                    color: 'white',
+                    textShadow: '0 2px 4px rgba(0,0,0,0.8)',
+                    fontWeight: 600,
+                    textAlign: 'center',
+                    lineHeight: 1.2,
+                    backgroundColor: 'rgba(0,0,0,0.3)',
+                    px: 1,
+                    py: 0.5,
+                    borderRadius: 1,
+                }}
+            >
+                {app.title}
+            </Typography>
+        </motion.div>
+    );
+};
+
 export const Desktop = () => {
     const { windows, openApp } = useWindowManager();
 
     const apps = [
+        // ... (apps array remains the same)
         {
             id: 'recordit',
             title: 'RecordIt',
@@ -76,60 +151,15 @@ export const Desktop = () => {
             <Box
                 sx={{
                     position: 'absolute',
-                    top: 48, // Below MenuBar
-                    left: 16,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 3,
+                    inset: 0,
+                    top: 32, // Below MenuBar
                     zIndex: 1,
+                    pointerEvents: 'none', // Allow clicking through empty space
                 }}
             >
-                {apps.filter(app => app.id === 'recordit').map((app) => (
-                    <Box
-                        key={app.id}
-                        onDoubleClick={() => openApp(app.id, app.title, app.component)}
-                        sx={{
-                            width: 80,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            gap: 1,
-                            cursor: 'pointer',
-                            p: 1,
-                            borderRadius: 2,
-                            '&:hover': {
-                                backgroundColor: 'rgba(255, 255, 255, 0.1)',
-                            },
-                        }}
-                    >
-                        <Box
-                            sx={{
-                                width: 48,
-                                height: 48,
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))',
-                            }}
-                        >
-                            {app.id === 'recordit' ? (
-                                <img src={logo} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                            ) : (
-                                app.icon
-                            )}
-                        </Box>
-                        <Typography
-                            variant="caption"
-                            sx={{
-                                color: 'white',
-                                textShadow: '0 2px 4px rgba(0,0,0,0.8)',
-                                fontWeight: 500,
-                                textAlign: 'center',
-                                lineHeight: 1.2,
-                            }}
-                        >
-                            {app.title}
-                        </Typography>
+                {apps.filter(app => app.id === 'recordit').map((app, index) => (
+                    <Box onClick={() => openApp(app.id, app.title, app.component)}>
+                        <DesktopIcon key={app.id} app={app} openApp={openApp} index={index} />
                     </Box>
                 ))}
             </Box>
