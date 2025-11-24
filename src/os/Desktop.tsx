@@ -13,6 +13,9 @@ import SecurityIcon from '@mui/icons-material/Security';
 import DescriptionIcon from '@mui/icons-material/Description';
 import SettingsIcon from '@mui/icons-material/Settings';
 import InfoIcon from '@mui/icons-material/Info';
+import Inventory2Icon from '@mui/icons-material/Inventory2';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import SpeedIcon from '@mui/icons-material/Speed';
 import { logo } from '../assets/index';
 
 const DesktopIcon = ({ app, openApp, index }: { app: any, openApp: any, index: number }) => {
@@ -231,6 +234,93 @@ export const Desktop = () => {
                         borderRadius: '50%',
                         border: '1px solid rgba(255, 138, 128, 0.3)',
                     }} />
+                </Box>
+
+                {/* Floating Widget: Inventory Analytics */}
+                <Box
+                    component={motion.div}
+                    animate={{ y: [0, -15, 0] }}
+                    transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                    sx={{
+                        position: 'absolute',
+                        top: '20%',
+                        right: '8%',
+                        display: { xs: 'none', md: 'flex' },
+                        alignItems: 'center',
+                        gap: 2,
+                        p: 2,
+                        borderRadius: 4,
+                        bgcolor: 'rgba(255, 255, 255, 0.03)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+                    }}
+                >
+                    <Box sx={{ p: 1.5, borderRadius: 3, bgcolor: 'rgba(255, 138, 128, 0.1)', color: '#FF8A80' }}>
+                        <Inventory2Icon />
+                    </Box>
+                    <Box>
+                        <Typography variant="subtitle2" fontWeight={700} color="white">Inventory Analytics</Typography>
+                        <Typography variant="caption" color="rgba(255,255,255,0.6)">Level: Optimized</Typography>
+                    </Box>
+                </Box>
+
+                {/* Floating Widget: Profit Margin */}
+                <Box
+                    component={motion.div}
+                    animate={{ y: [0, 15, 0] }}
+                    transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                    sx={{
+                        position: 'absolute',
+                        top: '45%',
+                        right: '10%',
+                        display: { xs: 'none', md: 'flex' },
+                        alignItems: 'center',
+                        gap: 2,
+                        p: 2,
+                        borderRadius: 4,
+                        bgcolor: 'rgba(255, 255, 255, 0.03)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+                    }}
+                >
+                    <Box sx={{ p: 1.5, borderRadius: 3, bgcolor: 'rgba(76, 175, 80, 0.1)', color: '#66BB6A' }}>
+                        <TrendingUpIcon />
+                    </Box>
+                    <Box>
+                        <Typography variant="subtitle2" fontWeight={700} color="white">Profit Margin</Typography>
+                        <Typography variant="caption" color="rgba(255,255,255,0.6)">+24% Growth</Typography>
+                    </Box>
+                </Box>
+
+                {/* Floating Widget: Sales Velocity */}
+                <Box
+                    component={motion.div}
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                    sx={{
+                        position: 'absolute',
+                        top: '35%',
+                        right: '35%',
+                        display: { xs: 'none', md: 'flex' },
+                        alignItems: 'center',
+                        gap: 2,
+                        p: 2,
+                        borderRadius: 4,
+                        bgcolor: 'rgba(255, 255, 255, 0.03)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+                    }}
+                >
+                    <Box sx={{ p: 1.5, borderRadius: 3, bgcolor: 'rgba(41, 182, 246, 0.1)', color: '#29B6F6' }}>
+                        <SpeedIcon />
+                    </Box>
+                    <Box>
+                        <Typography variant="subtitle2" fontWeight={700} color="white">Sales Velocity</Typography>
+                        <Typography variant="caption" color="rgba(255,255,255,0.6)">High Demand</Typography>
+                    </Box>
                 </Box>
             </Box>
 
