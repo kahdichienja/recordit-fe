@@ -15,8 +15,10 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import InfoIcon from '@mui/icons-material/Info';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import StorefrontIcon from '@mui/icons-material/Storefront';
 import SpeedIcon from '@mui/icons-material/Speed';
 import { logo } from '../assets/index';
+import { MarketplaceApp } from './apps/MarketplaceApp';
 
 const DesktopIcon = ({ app, openApp }: { app: any, openApp: any, index: number }) => {
     const [lastTap, setLastTap] = useState(0);
@@ -101,6 +103,12 @@ export const Desktop = () => {
             title: 'RecordIt',
             component: <RecordItApp />,
             icon: <img src={logo} alt="Logo" height={30} width={30} />
+        },
+        {
+            id: 'marketplace',
+            title: 'Market Place',   
+            component: <MarketplaceApp />,
+            icon: <StorefrontIcon sx={{ fontSize: 32, color: '#4FC3F7' }} />
         },
         {
             id: 'privacy',
@@ -335,8 +343,8 @@ export const Desktop = () => {
                     p: 4,
                 }}
             >
-                {apps.filter(app => app.id === 'recordit' || app.id === 'about').map((app, index) => (
-                    <Box onClick={() => openApp(app.id, app.title, app.component)}>
+                {apps.filter(app => app.id === 'recordit' || app.id === 'marketplace' || app.id === 'about').map((app, index) => (
+                    <Box onClick={() => openApp(app.id, app.title, app.component)} sx={{m: 2}}>
                         <DesktopIcon key={app.id} app={app} openApp={openApp} index={index} />
                     </Box>
                 ))}
