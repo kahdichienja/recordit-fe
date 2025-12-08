@@ -1,16 +1,27 @@
 import { useState } from 'react';
-import { Box, Typography, Button, Grid, Card, CardContent, CardMedia, Chip, IconButton, Rating, Stack } from '@mui/material';
+import { Box, Typography, Button, Grid, Card, CardContent, CardMedia, Chip, IconButton, Rating, Stack, Drawer, Badge, Avatar } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import StorefrontIcon from '@mui/icons-material/Storefront';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import CloseIcon from '@mui/icons-material/Close';
 import { motion, AnimatePresence } from 'framer-motion';
-import { SHOPS, type Shop } from '../data/marketplace';
+import { SHOPS, type Shop, type Product } from '../data/marketplace';
 
 const MotionBox = motion(Box);
+
+interface CartItem extends Product {
+    quantity: number;
+    shopName: string;
+}
 
 export const MarketplaceApp = () => {
     const [selectedShop, setSelectedShop] = useState<Shop | null>(null);
     const [selectedCategory, setSelectedCategory] = useState<string>('All');
+    const [cart, setCart] = useState<CartItem[]>([]);
+    const [isCartOpen, setIsCartOpen] = useState(false);
 
     const handleShopClick = (shop: Shop) => {
         setSelectedShop(shop);
@@ -21,8 +32,53 @@ export const MarketplaceApp = () => {
         setSelectedShop(null);
     };
 
+    // --- Cart Logic ---
+    const addToCart = (product: Product, shopName: string) => {
+        setCart(prev => {
+            const existing = prev.find(item => item.id === product.id);
+            if (existing) {
+                return prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item);
+            }
+            return [...prev, { ...product, quantity: 1, shopName }];
+        });
+        setIsCartOpen(true);
+    };
+
+    const removeFromCart = (productId: string) => {
+        setCart(prev => prev.filter(item => item.id !== productId));
+    };
+
+    const updateQuantity = (productId: string, delta: number) => {
+        setCart(prev => prev.map(item => {
+            if (item.id === productId) {
+                const newQty = Math.max(0, item.quantity + delta);
+                return { ...item, quantity: newQty };
+            }
+            return item;
+        }).filter(item => item.quantity > 0));
+    };
+
+    const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
     return (
-        <Box sx={{ minHeight: '100%', color: 'white' }}>
+        <Box sx={{ minHeight: '100%', color: 'white', position: 'relative' }}>
+            {/* Header with Cart Button */}
+            <Box sx={{ position: 'absolute', top: 20, right: 30, zIndex: 10 }}>
+                <IconButton
+                    onClick={() => setIsCartOpen(true)}
+                    sx={{
+                        bgcolor: 'rgba(255, 138, 128, 0.2)',
+                        color: '#FF8A80',
+                        border: '1px solid rgba(255, 138, 128, 0.3)',
+                        '&:hover': { bgcolor: '#FF8A80', color: 'white' }
+                    }}
+                >
+                    <Badge badgeContent={cart.reduce((a, b) => a + b.quantity, 0)} color="error">
+                        <ShoppingCartIcon />
+                    </Badge>
+                </IconButton>
+            </Box>
+
             <AnimatePresence mode="wait">
                 {!selectedShop ? (
                     <ShopListView key="list" shops={SHOPS} onShopClick={handleShopClick} />
@@ -33,9 +89,106 @@ export const MarketplaceApp = () => {
                         onBack={handleBack}
                         selectedCategory={selectedCategory}
                         setSelectedCategory={setSelectedCategory}
+                        onAddToCart={addToCart}
                     />
                 )}
             </AnimatePresence>
+
+            {/* Cart Drawer */}
+            <Drawer
+                anchor="right"
+                open={isCartOpen}
+                onClose={() => setIsCartOpen(false)}
+                PaperProps={{
+                    sx: {
+                        width: { xs: '100%', sm: 400 },
+                        bgcolor: '#0B0000',
+                        borderLeft: '1px solid rgba(255,255,255,0.1)',
+                        p: 0
+                    }
+                }}
+            // Ensure drawer renders inside the app window context if possible, 
+            // but MUI Drawer uses portal by default. For a "Desktop" app feel, 
+            // typically we'd want custom layout code, but Portal is fine for this simulated OS.
+            // To keep it contained within the window, we might need a custom side-panel implementation,
+            // but standard Drawer is acceptable for "System" level feel or we just assume it overlays the window.
+            // Ideally, in this OS, it should be inside the window.
+            // Let's use a "Sidebar" styled Box if we want it in-window, OR just let it slide over.
+            // Let's stick to MUI Drawer for simplicity and "Overlay" feel.
+            >
+                <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    <Box sx={{ p: 3, borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Typography variant="h5" fontWeight={700}>Your Cart</Typography>
+                        <IconButton onClick={() => setIsCartOpen(false)} sx={{ color: 'white' }}>
+                            <CloseIcon />
+                        </IconButton>
+                    </Box>
+
+                    <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 3 }}>
+                        {cart.length === 0 ? (
+                            <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', opacity: 0.5 }}>
+                                <ShoppingCartIcon sx={{ fontSize: 60, mb: 2 }} />
+                                <Typography>Your cart is empty</Typography>
+                            </Box>
+                        ) : (
+                            <Stack spacing={3}>
+                                {cart.map(item => (
+                                    <Box key={item.id} sx={{ display: 'flex', gap: 2 }}>
+                                        <Avatar src={item.image} variant="rounded" sx={{ width: 70, height: 70 }} />
+                                        <Box sx={{ flexGrow: 1 }}>
+                                            <Typography variant="subtitle2" fontWeight={700} noWrap>{item.name}</Typography>
+                                            <Typography variant="caption" color="text.secondary" display="block" mb={1}>
+                                                {item.shopName}
+                                            </Typography>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                <Typography variant="body2" color="#FF8A80" fontWeight={600}>
+                                                    ${(item.price * item.quantity).toFixed(2)}
+                                                </Typography>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, bgcolor: 'rgba(255,255,255,0.05)', borderRadius: 1 }}>
+                                                    <IconButton size="small" onClick={() => updateQuantity(item.id, -1)} sx={{ color: 'white', p: 0.5 }}>
+                                                        <RemoveIcon fontSize="small" />
+                                                    </IconButton>
+                                                    <Typography variant="caption">{item.quantity}</Typography>
+                                                    <IconButton size="small" onClick={() => updateQuantity(item.id, 1)} sx={{ color: 'white', p: 0.5 }}>
+                                                        <AddIcon fontSize="small" />
+                                                    </IconButton>
+                                                </Box>
+                                            </Box>
+                                        </Box>
+                                        <IconButton
+                                            onClick={() => removeFromCart(item.id)}
+                                            sx={{ color: 'text.secondary', alignSelf: 'flex-start', '&:hover': { color: 'error.main' } }}
+                                        >
+                                            <DeleteOutlineIcon fontSize="small" />
+                                        </IconButton>
+                                    </Box>
+                                ))}
+                            </Stack>
+                        )}
+                    </Box>
+
+                    <Box sx={{ p: 3, borderTop: '1px solid rgba(255,255,255,0.1)', bgcolor: 'rgba(255,255,255,0.02)' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+                            <Typography variant="h6">Total</Typography>
+                            <Typography variant="h6" fontWeight={800} color="#FF8A80">${cartTotal.toFixed(2)}</Typography>
+                        </Box>
+                        <Button
+                            variant="contained"
+                            fullWidth
+                            size="large"
+                            disabled={cart.length === 0}
+                            sx={{
+                                bgcolor: '#FF8A80',
+                                color: 'black',
+                                fontWeight: 700,
+                                '&:hover': { bgcolor: '#FF5252' }
+                            }}
+                        >
+                            Checkout
+                        </Button>
+                    </Box>
+                </Box>
+            </Drawer>
         </Box>
     );
 };
@@ -60,7 +213,7 @@ const ShopListView = ({ shops, onShopClick }: { shops: Shop[], onShopClick: (s: 
 
         <Grid container spacing={3}>
             {shops.map((shop: Shop) => (
-                <Grid key={shop.id} sx={{width: '30%', height: '40%'}}>
+                <Grid key={shop.id}>
                     <Card
                         onClick={() => onShopClick(shop)}
                         sx={{
@@ -70,8 +223,6 @@ const ShopListView = ({ shops, onShopClick }: { shops: Shop[], onShopClick: (s: 
                             borderRadius: 4,
                             cursor: 'pointer',
                             transition: 'all 0.3s',
-                            width: '100%',
-                            height: '100%',
                             '&:hover': {
                                 transform: 'translateY(-5px)',
                                 bgcolor: 'rgba(255,255,255,0.1)',
@@ -82,7 +233,6 @@ const ShopListView = ({ shops, onShopClick }: { shops: Shop[], onShopClick: (s: 
                         <CardMedia
                             component="img"
                             height="180"
-                            width="100"
                             image={shop.image}
                             alt={shop.name}
                         />
@@ -114,12 +264,14 @@ const ShopDetailView = ({
     shop,
     onBack,
     selectedCategory,
-    setSelectedCategory
+    setSelectedCategory,
+    onAddToCart
 }: {
     shop: Shop,
     onBack: () => void,
     selectedCategory: string,
-    setSelectedCategory: (c: string) => void
+    setSelectedCategory: (c: string) => void,
+    onAddToCart: (p: Product, shopName: string) => void
 }) => {
     const filteredProducts = selectedCategory === 'All'
         ? shop.products
@@ -196,13 +348,15 @@ const ShopDetailView = ({
                                         sx={{ transition: 'transform 0.5s', bgcolor: '#222' }}
                                     />
                                     <IconButton
+                                        onClick={() => onAddToCart(product, shop.name)}
                                         sx={{
                                             position: 'absolute',
                                             bottom: 12,
                                             right: 12,
                                             bgcolor: 'rgba(255,255,255,0.9)',
                                             color: 'black',
-                                            '&:hover': { bgcolor: 'white' }
+                                            '&:hover': { bgcolor: 'white', transform: 'scale(1.1)' },
+                                            transition: 'all 0.2s'
                                         }}
                                     >
                                         <ShoppingCartIcon />
