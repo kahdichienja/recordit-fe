@@ -126,7 +126,7 @@ const ShopDetailView = ({
                     <Button
                         startIcon={<ArrowBackIcon />}
                         onClick={onBack}
-                        sx={{ color: 'white', mb: 2, bgcolor: 'rgba(0,0,0,0.5)', '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' } }}
+                        sx={{ mt: 3, color: 'white', mb: 2, bgcolor: 'rgba(0,0,0,0.5)', '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' } }}
                     >
                         Back to Shops
                     </Button>
@@ -355,6 +355,7 @@ export const MarketplaceApp = () => {
     const [selectedCategory, setSelectedCategory] = useState<string>('All');
     const [cart, setCart] = useState<CartItem[]>([]);
     const [isCartOpen, setIsCartOpen] = useState(false);
+    const [containerEl, setContainerEl] = useState<HTMLDivElement | null>(null);
 
     const handleShopClick = (shop: Shop) => {
         setSelectedShop(shop);
@@ -385,7 +386,7 @@ export const MarketplaceApp = () => {
             }
             return [...prev, { ...product, quantity: 1, shopName }];
         });
-        setIsCartOpen(true);
+        // setIsCartOpen(true);
     };
 
     const removeFromCart = (productId: string) => {
@@ -405,7 +406,15 @@ export const MarketplaceApp = () => {
     const cartTotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
     return (
-        <Box sx={{ minHeight: '100%', color: 'white', position: 'relative' }}>
+        <Box
+            ref={setContainerEl}
+            sx={{
+                minHeight: '100%',
+                color: 'white',
+                position: 'relative',
+                overflow: 'hidden'
+            }}
+        >
             {/* Header with Cart Button */}
             <Box sx={{ position: 'absolute', top: 20, right: 30, zIndex: 10 }}>
                 <IconButton
@@ -449,15 +458,26 @@ export const MarketplaceApp = () => {
 
             {/* Cart Drawer */}
             <Drawer
+                container={containerEl}
                 anchor="right"
                 open={isCartOpen}
                 onClose={() => setIsCartOpen(false)}
+                sx={{
+                    '& .MuiDrawer-root': { position: 'absolute' },
+                    '& .MuiPaper-root': { position: 'absolute' },
+                    '& .MuiBackdrop-root': { position: 'absolute' }
+                }}
+                ModalProps={{
+                    keepMounted: true,
+                    style: { position: 'absolute' }
+                }}
                 PaperProps={{
                     sx: {
                         width: { xs: '100%', sm: 400 },
                         bgcolor: '#0B0000',
                         borderLeft: '1px solid rgba(255,255,255,0.1)',
-                        p: 0
+                        p: 0,
+                        height: '100%'
                     }
                 }}
             >
