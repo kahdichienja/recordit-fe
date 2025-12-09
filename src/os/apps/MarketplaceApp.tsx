@@ -254,6 +254,17 @@ const CheckoutView = ({ cart, total, onBack }: { cart: CartItem[], total: number
                             </Grid>
                             <Grid size={{ xs: 12 }}>
                                 <TextField
+                                    label="Phone Number"
+                                    fullWidth
+                                    variant="outlined"
+                                    sx={{
+                                        '& .MuiOutlinedInput-root': { color: 'white', '& fieldset': { borderColor: 'rgba(255,255,255,0.2)' } },
+                                        '& .MuiInputLabel-root': { color: 'rgba(255,255,255,0.7)' }
+                                    }}
+                                />
+                            </Grid>
+                            <Grid size={{ xs: 12 }}>
+                                <TextField
                                     label="Street Address"
                                     fullWidth
                                     variant="outlined"
@@ -263,6 +274,7 @@ const CheckoutView = ({ cart, total, onBack }: { cart: CartItem[], total: number
                                     }}
                                 />
                             </Grid>
+                            
                             <Grid size={{ xs: 6 }}>
                                 <TextField
                                     label="City"
