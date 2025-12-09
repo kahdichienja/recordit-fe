@@ -32,7 +32,7 @@ const ShopListView = ({ shops, onShopClick }: { shops: Shop[], onShopClick: (s: 
     >
         <Typography variant="h4" fontWeight={800} gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
             <StorefrontIcon fontSize="large" sx={{ color: '#FF8A80' }} />
-            Marketplace
+            MarketPlace
         </Typography>
         <Typography variant="body1" color="text.secondary" mb={4}>
             Discover unique shops and premium products.
@@ -126,7 +126,7 @@ const ShopDetailView = ({
                     <Button
                         startIcon={<ArrowBackIcon />}
                         onClick={onBack}
-                        sx={{ mt: 3, color: 'white', mb: 2, bgcolor: 'rgba(0,0,0,0.5)', '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' } }}
+                        sx={{ color: 'white', mb: 2, bgcolor: 'rgba(0,0,0,0.5)', '&:hover': { bgcolor: 'rgba(0,0,0,0.7)' } }}
                     >
                         Back to Shops
                     </Button>
@@ -416,7 +416,7 @@ export const MarketplaceApp = () => {
             }}
         >
             {/* Header with Cart Button */}
-            <Box sx={{ position: 'absolute', top: 20, right: 30, zIndex: 10 }}>
+            <Box sx={{ position: 'fixed', top: 99, right: 30, zIndex: 10 }}>
                 <IconButton
                     onClick={() => setIsCartOpen(true)}
                     sx={{
