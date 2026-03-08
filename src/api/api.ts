@@ -96,7 +96,7 @@ export const api = createApi({
       query: (id) => `shops/${id}/`,
       providesTags: (_result, _error, id) => [{ type: 'Shop', id }],
     }),
-
+ 
     // ── Products (per-shop) ────────────────────────────────────────────────
     getShopProducts: builder.query<ShopProductsResponse, number>({
       query: (shopId) => `shops/${shopId}/products/`,
