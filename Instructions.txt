@@ -20,8 +20,14 @@ Step 2.
     - /shops/ - get all shops
     - /shops/{id}/ - get a single shop
     - /shops/<int:shop_id>/products/ - get all products in a shop
-    - /products/{id}/ - get a single product
     - /orders/create/ - create an order
     - /orders/{id}/ - get an order
 - try and make a curl request to the backend to test the endpoints. and get the data from the backend and modify the interface to match the backend data.
-- 
+
+Step 3.
+
+- Now wire up the MarketplaceApp to use the api.ts file to get data 
+from the backend.
+- from geting shops to getting products in a shop, to creating an order, 
+- use placeholder images for now. i will provide real images later.
+- There is now UI for getting an order. Don't worry about it for now. we will work on it later.

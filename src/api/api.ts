@@ -1,45 +1,78 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 
-// ─── Mock Interfaces ──────────────────────────────────────────────────────────
+// ─── Real Backend Interfaces ──────────────────────────────────────────────────
 
+/** Inventory item embedded inside a Shop or ShopProducts response */
+export interface InventoryItem {
+  id: number;
+  product_name: string;
+  selling_price: number;
+  product_quantity: number;
+  sku: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Full shop object with embedded inventory (from GET /shops/ and GET /shops/{id}/) */
 export interface Shop {
-  id: string;
+  id: number;
   name: string;
-  description: string;
-  address: string;
-  phone: string;
-  imageUrl?: string;
-}
-
-export interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
-  shopId: string;
-  imageUrl?: string;
-  stock: number;
-}
-
-export interface Order {
-  orderNumber: string;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  product: Product;
-  shop: Shop;
-  quantity: number;
-  price: number;
-  delivery_address: string;
-  phone_number: string;
   email: string;
-  name: string;
-  createdAt: string;
+  description: string;
+  location: string;
+  inventory: InventoryItem[];
 }
 
+/** Minimal shop object embedded inside product/order responses */
+export interface ShopSummary {
+  id: number;
+  name: string;
+  email: string;
+  location: string;
+}
+
+/** Minimal inventory reference inside a Sales record */
+export interface InventorySummary {
+  id: number;
+  product_name: string;
+  sku: string;
+}
+
+/** Sales record embedded inside an Order */
+export interface Sales {
+  id: number;
+  product_price: number;
+  product_quantity: number;
+  product_discount_price: number;
+  inventory: InventorySummary;
+}
+
+/** Full Order object */
+export interface Order {
+  id: number;
+  shop: ShopSummary;
+  sales: Sales;
+  status: 'pending' | 'processing' | 'shipped' | 'completed' | 'cancelled';
+  total_amount: number;
+  name: string;
+  email: string;
+  phone_number: string;
+  delivery_address: string;
+  created_at: string;
+  updated_at: string;
+}
+
+/** Response shape for GET /shops/<shop_id>/products/ */
+export interface ShopProductsResponse {
+  shop: ShopSummary;
+  products: InventoryItem[];
+}
+
+/** Payload for POST /orders/create/ */
 export interface CreateOrderPayload {
-  product_id: string;
-  shop_id: string;
-  quantity: number;
-  price: number;
+  inventory_id: number;   // the inventory/product id
+  shop_id: number;
+  product_quantity: number;
   delivery_address: string;
   phone_number: string;
   email: string;
@@ -53,38 +86,41 @@ export const api = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: 'http://127.0.0.1:8000/api/' }),
   tagTypes: ['Shop', 'Product', 'Order'],
   endpoints: (builder) => ({
-    // Shops
+    // ── Shops ──────────────────────────────────────────────────────────────
     getShops: builder.query<Shop[], void>({
       query: () => 'shops/',
       providesTags: ['Shop'],
     }),
-    getShop: builder.query<Shop, string>({
+
+    getShop: builder.query<Shop, number>({
       query: (id) => `shops/${id}/`,
       providesTags: (_result, _error, id) => [{ type: 'Shop', id }],
     }),
 
-    // Products
-    getProducts: builder.query<Product[], void>({
-      query: () => 'products/',
-      providesTags: ['Product'],
+    // ── Products (per-shop) ────────────────────────────────────────────────
+    getShopProducts: builder.query<ShopProductsResponse, number>({
+      query: (shopId) => `shops/${shopId}/products/`,
+      providesTags: (_result, _error, shopId) => [{ type: 'Product', id: shopId }],
     }),
-    getProduct: builder.query<Product, string>({
+
+    getProduct: builder.query<InventoryItem, number>({
       query: (id) => `products/${id}/`,
       providesTags: (_result, _error, id) => [{ type: 'Product', id }],
     }),
 
-    // Orders
+    // ── Orders ─────────────────────────────────────────────────────────────
     createOrder: builder.mutation<Order, CreateOrderPayload>({
       query: (body) => ({
-        url: 'orders/',
+        url: 'orders/create/',
         method: 'POST',
         body,
       }),
       invalidatesTags: ['Order'],
     }),
-    getOrder: builder.query<Order, string>({
-      query: (orderNumber) => `orders/${orderNumber}/`,
-      providesTags: (_result, _error, orderNumber) => [{ type: 'Order', id: orderNumber }],
+
+    getOrder: builder.query<Order, number>({
+      query: (id) => `orders/${id}/`,
+      providesTags: (_result, _error, id) => [{ type: 'Order', id }],
     }),
   }),
 });
@@ -92,7 +128,7 @@ export const api = createApi({
 export const {
   useGetShopsQuery,
   useGetShopQuery,
-  useGetProductsQuery,
+  useGetShopProductsQuery,
   useGetProductQuery,
   useCreateOrderMutation,
   useGetOrderQuery,
