@@ -1,0 +1,27 @@
+Step 1.
+- Create a folder called api in /src/
+
+- In the folder i want you to create a file called api.ts,
+    - the file will be responsible for queries and mutation using react toolkit to get data from the backend.
+    - the base url is http://127.0.0.1:8000/api/
+    - for now just create a mock interface for the data. i will provide real data later.
+    - create a function to get all shops, products,
+    - create a function to get a single shop, product, 
+    - create a fuction to get create an order for a product.
+    - create a function to get an order based of order number. they will be no authentications for user to create an order, just 
+    the delivery_address, phone_number, email, name, and the product_id, quantity, price, shop_id, is required to create an order.
+    - also create a cart system maintained by the browser, user is only allowed to order from one shop at a time, so if the user 
+    tries to add a product from a different shop to the cart, it should be rejected.
+    
+
+Step 2.
+
+- update the following Endpoints.
+    - /shops/ - get all shops
+    - /shops/{id}/ - get a single shop
+    - /shops/<int:shop_id>/products/ - get all products in a shop
+    - /products/{id}/ - get a single product
+    - /orders/create/ - create an order
+    - /orders/{id}/ - get an order
+- try and make a curl request to the backend to test the endpoints. and get the data from the backend and modify the interface to match the backend data.
+- 
