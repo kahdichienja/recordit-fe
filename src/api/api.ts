@@ -83,7 +83,7 @@ export interface CreateOrderPayload {
 
 export const api = createApi({
   reducerPath: 'api',
-  baseQuery: fetchBaseQuery({ baseUrl: 'http://127.0.0.1:8000/api/' }),
+  baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_API_URL as string }),
   tagTypes: ['Shop', 'Product', 'Order'],
   endpoints: (builder) => ({
     // ── Shops ──────────────────────────────────────────────────────────────
