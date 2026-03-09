@@ -12,6 +12,7 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import DownloadIcon from '@mui/icons-material/Download';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -246,6 +247,19 @@ const ShopDetailView = ({
     );
 };
 
+// ─── Receipt Data Type ───────────────────────────────────────────────────────
+
+interface ReceiptData {
+    orderId: number;
+    name: string;
+    email: string;
+    phone_number: string;
+    delivery_address: string;
+    items: CartItem[];
+    total: number;
+    date: string;
+}
+
 // ─── Checkout View ────────────────────────────────────────────────────────────
 
 const CheckoutView = ({
@@ -257,7 +271,7 @@ const CheckoutView = ({
     cart: CartItem[];
     total: number;
     onBack: () => void;
-    onOrderSuccess: (orderId: number) => void;
+    onOrderSuccess: (data: ReceiptData) => void;
 }) => {
     const [createOrder, { isLoading }] = useCreateOrderMutation();
     const [form, setForm] = useState({
@@ -296,7 +310,19 @@ const CheckoutView = ({
                 const result = await createOrder(payload).unwrap();
                 lastOrderId = result.id;
             }
-            onOrderSuccess(lastOrderId);
+            onOrderSuccess({
+                orderId: lastOrderId,
+                name: form.name,
+                email: form.email,
+                phone_number: form.phone_number,
+                delivery_address: form.delivery_address,
+                items: cart,
+                total,
+                date: new Date().toLocaleString('en-KE', {
+                    year: 'numeric', month: 'long', day: 'numeric',
+                    hour: '2-digit', minute: '2-digit',
+                }),
+            });
         } catch {
             setErrors({ submit: 'Failed to place order. Please try again.' });
         }
@@ -412,32 +438,171 @@ const CheckoutView = ({
     );
 };
 
+// ─── Receipt download helper ─────────────────────────────────────────────────
+
+function downloadReceipt(r: ReceiptData) {
+    const rows = r.items.map(item => `
+        <tr>
+            <td style="padding:10px 8px;border-bottom:1px solid #eee">${item.name}</td>
+            <td style="padding:10px 8px;border-bottom:1px solid #eee;text-align:center">${item.quantity}</td>
+            <td style="padding:10px 8px;border-bottom:1px solid #eee;text-align:right">KES ${item.price.toLocaleString()}</td>
+            <td style="padding:10px 8px;border-bottom:1px solid #eee;text-align:right">KES ${(item.price * item.quantity).toLocaleString()}</td>
+        </tr>
+    `).join('');
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Receipt #${r.orderId}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f5f5f5; color: #333; padding: 40px; }
+    .card { max-width: 640px; margin: 0 auto; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.1); }
+    .header { background: linear-gradient(135deg, #FF8A80, #FF5252); color: #fff; padding: 32px; text-align: center; }
+    .header h1 { font-size: 28px; font-weight: 800; margin-bottom: 4px; }
+    .header p { opacity: 0.85; font-size: 14px; }
+    .section { padding: 24px 32px; border-bottom: 1px solid #f0f0f0; }
+    .section h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: #999; margin-bottom: 12px; }
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; }
+    .info-item label { font-size: 11px; color: #aaa; display: block; margin-bottom: 2px; }
+    .info-item span { font-size: 14px; font-weight: 600; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #999; padding: 8px; text-align: left; border-bottom: 2px solid #eee; }
+    th:nth-child(2) { text-align: center; }
+    th:nth-child(3), th:nth-child(4) { text-align: right; }
+    .total-row { padding: 20px 32px; display: flex; justify-content: space-between; align-items: center; background: #fafafa; }
+    .total-row span { font-size: 15px; color: #666; }
+    .total-row strong { font-size: 22px; font-weight: 800; color: #FF5252; }
+    .footer { text-align: center; padding: 20px 32px; font-size: 12px; color: #bbb; }
+    @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; } }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <h1>Order Receipt</h1>
+      <p>Order #${r.orderId} &nbsp;·&nbsp; ${r.date}</p>
+    </div>
+    <div class="section">
+      <h2>Customer</h2>
+      <div class="info-grid">
+        <div class="info-item"><label>Name</label><span>${r.name}</span></div>
+        <div class="info-item"><label>Email</label><span>${r.email}</span></div>
+        <div class="info-item"><label>Phone</label><span>${r.phone_number}</span></div>
+        <div class="info-item"><label>Delivery Address</label><span>${r.delivery_address}</span></div>
+      </div>
+    </div>
+    <div class="section">
+      <h2>Items</h2>
+      <table>
+        <thead><tr><th>Product</th><th>Qty</th><th>Unit Price</th><th>Subtotal</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <div class="total-row"><span>Total Amount</span><strong>KES ${r.total.toLocaleString()}</strong></div>
+    <div class="footer">Thank you for your order! Please keep this receipt for your records.</div>
+  </div>
+  <script>window.onload = () => window.print();<\/script>
+</body>
+</html>`;
+
+    const win = window.open('', '_blank');
+    if (win) {
+        win.document.write(html);
+        win.document.close();
+    }
+}
+
 // ─── Success View ─────────────────────────────────────────────────────────────
 
-const SuccessView = ({ orderId, onContinue }: { orderId: number; onContinue: () => void }) => (
+const SuccessView = ({ receipt, onContinue }: { receipt: ReceiptData; onContinue: () => void }) => (
     <MotionBox
-        initial={{ opacity: 0, scale: 0.9 }}
+        initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.4 }}
-        sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', p: 4, textAlign: 'center' }}
+        sx={{ overflowY: 'auto', p: 4, maxWidth: 640, mx: 'auto' }}
     >
-        <CheckCircleIcon sx={{ fontSize: 100, color: '#81C784', mb: 3 }} />
-        <Typography variant="h3" fontWeight={800} mb={1}>Order Placed!</Typography>
-        <Typography variant="h6" color="text.secondary" mb={1}>
-            Order #{orderId}
-        </Typography>
-        <Typography color="text.secondary" mb={4}>
-            Thank you for your order. We'll send a confirmation to your email.
-        </Typography>
-        <Button
-            variant="contained"
-            size="large"
-            onClick={onContinue}
-            sx={{ bgcolor: '#FF8A80', color: 'black', fontWeight: 700, '&:hover': { bgcolor: '#FF5252' } }}
-        >
-            Continue Shopping
-        </Button>
+        {/* Confirmation banner */}
+        <Box sx={{ textAlign: 'center', mb: 4 }}>
+            <CheckCircleIcon sx={{ fontSize: 80, color: '#81C784', mb: 2 }} />
+            <Typography variant="h4" fontWeight={800} mb={1}>Order Placed!</Typography>
+            <Typography color="text.secondary">
+                Thank you for your order. We'll send a confirmation to your email.
+            </Typography>
+        </Box>
+
+        {/* Receipt card */}
+        <Paper sx={{ bgcolor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 4, overflow: 'hidden', mb: 3 }}>
+            {/* Header */}
+            <Box sx={{ background: 'linear-gradient(135deg, #FF8A80, #FF5252)', p: 3, textAlign: 'center' }}>
+                <Typography variant="h6" fontWeight={800}>Receipt</Typography>
+                <Typography variant="caption" sx={{ opacity: 0.85 }}>
+                    Order #{receipt.orderId} &nbsp;·&nbsp; {receipt.date}
+                </Typography>
+            </Box>
+
+            {/* Customer info */}
+            <Box sx={{ p: 3, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                <Typography variant="caption" color="text.secondary" display="block" mb={1.5} sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>Customer</Typography>
+                <Grid container spacing={1}>
+                    {[['Name', receipt.name], ['Email', receipt.email], ['Phone', receipt.phone_number], ['Delivery', receipt.delivery_address]].map(([label, value]) => (
+                        <Grid key={label} size={{ xs: 12, sm: 6 }}>
+                            <Typography variant="caption" color="text.secondary">{label}</Typography>
+                            <Typography variant="body2" fontWeight={600}>{value}</Typography>
+                        </Grid>
+                    ))}
+                </Grid>
+            </Box>
+
+            {/* Items */}
+            <Box sx={{ p: 3, borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                <Typography variant="caption" color="text.secondary" display="block" mb={1.5} sx={{ textTransform: 'uppercase', letterSpacing: 1 }}>Items</Typography>
+                <Stack spacing={1.5}>
+                    {receipt.items.map(item => (
+                        <Box key={item.productId} sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Box>
+                                <Typography variant="body2" fontWeight={600}>{item.name}</Typography>
+                                <Typography variant="caption" color="text.secondary">Qty: {item.quantity} × KES {item.price.toLocaleString()}</Typography>
+                            </Box>
+                            <Typography variant="body2" fontWeight={700} color="#FF8A80">
+                                KES {(item.price * item.quantity).toLocaleString()}
+                            </Typography>
+                        </Box>
+                    ))}
+                </Stack>
+            </Box>
+
+            {/* Total */}
+            <Box sx={{ p: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography variant="h6">Total</Typography>
+                <Typography variant="h5" fontWeight={800} color="#FF8A80">KES {receipt.total.toLocaleString()}</Typography>
+            </Box>
+        </Paper>
+
+        {/* Actions */}
+        <Stack direction="row" spacing={2}>
+            <Button
+                variant="outlined"
+                size="large"
+                fullWidth
+                startIcon={<DownloadIcon />}
+                onClick={() => downloadReceipt(receipt)}
+                sx={{ borderColor: '#FF8A80', color: '#FF8A80', fontWeight: 700, '&:hover': { borderColor: '#FF5252', bgcolor: 'rgba(255,82,82,0.08)' } }}
+            >
+                Download Receipt
+            </Button>
+            <Button
+                variant="contained"
+                size="large"
+                fullWidth
+                onClick={onContinue}
+                sx={{ bgcolor: '#FF8A80', color: 'black', fontWeight: 700, '&:hover': { bgcolor: '#FF5252' } }}
+            >
+                Continue Shopping
+            </Button>
+        </Stack>
     </MotionBox>
 );
 
@@ -448,7 +613,7 @@ export const MarketplaceApp = () => {
     const [selectedShop, setSelectedShop] = useState<Shop | null>(null);
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [isOrderTrackOpen, setIsOrderTrackOpen] = useState(false);
-    const [successOrderId, setSuccessOrderId] = useState<number>(0);
+    const [successReceipt, setSuccessReceipt] = useState<ReceiptData | null>(null);
     const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; type: 'success' | 'warning' }>({
         open: false,
         message: '',
@@ -495,8 +660,8 @@ export const MarketplaceApp = () => {
         setSnackbar({ open: true, message: `${product.product_name} added to cart!`, type: 'success' });
     };
 
-    const handleOrderSuccess = (orderId: number) => {
-        setSuccessOrderId(orderId);
+    const handleOrderSuccess = (data: ReceiptData) => {
+        setSuccessReceipt(data);
         dispatch(clearCart());
         setView('success');
     };
@@ -557,10 +722,10 @@ export const MarketplaceApp = () => {
                         onOrderSuccess={handleOrderSuccess}
                     />
                 )}
-                {view === 'success' && (
+                {view === 'success' && successReceipt && (
                     <SuccessView
                         key="success"
-                        orderId={successOrderId}
+                        receipt={successReceipt}
                         onContinue={() => { setSelectedShop(null); setView('list'); }}
                     />
                 )}
