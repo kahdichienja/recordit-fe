@@ -31,3 +31,39 @@ from the backend.
 - from geting shops to getting products in a shop, to creating an order, 
 - use placeholder images for now. i will provide real images later.
 - There is now UI for getting an order. Don't worry about it for now. we will work on it later.
+
+Step 4.
+- We need a way to show orders to the user, so create a new component 
+called OrderTrack.tsx in /src/os/components/OrderTrack.tsx,
+- this component will be responsible for showing order to the user,
+ when user types in the order number, it will show the order details.
+- Create a FAB on the MarketplaceApp.tsx to open the OrderTrack.tsx.
+- Below is what is return from the backend.
+{
+    "id": 1,
+    "shop": {
+        "id": 276,
+        "name": "Shop Owner's Shop",
+        "email": "owner@gmail.com",
+        "location": "Not Provided"
+    },
+    "sales": {
+        "id": 13,
+        "product_price": 500,
+        "product_quantity": 1,
+        "product_discount_price": 0,
+        "inventory": {
+            "id": 9,
+            "product_name": "Jersey",
+            "sku": "wdds"
+        }
+    },
+    "status": "pending",
+    "total_amount": 500,
+    "name": "Test User",
+    "email": "test@test.com",
+    "phone_number": "0700000000",
+    "delivery_address": "123 Test St",
+    "created_at": "2026-03-08T19:12:32.102127Z",
+    "updated_at": "2026-03-08T19:12:32.103664Z"
+}

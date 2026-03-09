@@ -13,8 +13,10 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDispatch, useSelector } from 'react-redux';
+import { OrderTrack } from '../components/OrderTrack';
 
 import {
     useGetShopsQuery,
@@ -447,6 +449,7 @@ export const MarketplaceApp = () => {
     const [isCartOpen, setIsCartOpen] = useState(false);
     const [containerEl, setContainerEl] = useState<HTMLDivElement | null>(null);
     const [successOrderId, setSuccessOrderId] = useState<number>(0);
+    const [isOrderTrackOpen, setIsOrderTrackOpen] = useState(false);
     const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; type: 'success' | 'warning' }>({
         open: false,
         message: '',
@@ -504,8 +507,9 @@ export const MarketplaceApp = () => {
             ref={setContainerEl}
             sx={{ minHeight: '100%', color: 'white', position: 'relative', overflow: 'hidden' }}
         >
-            {/* Cart FAB */}
-            <Box sx={{ position: 'fixed', top: 99, right: 30, zIndex: 10 }}>
+            {/* FABs */}
+            <Box sx={{ position: 'fixed', top: 99, right: 30, zIndex: 10, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                {/* Cart FAB */}
                 <IconButton
                     onClick={() => setIsCartOpen(true)}
                     sx={{
@@ -518,6 +522,19 @@ export const MarketplaceApp = () => {
                     <Badge badgeContent={cartCount} color="error">
                         <ShoppingCartIcon />
                     </Badge>
+                </IconButton>
+                {/* Order Track FAB */}
+                <IconButton
+                    onClick={() => setIsOrderTrackOpen(true)}
+                    sx={{
+                        bgcolor: 'rgba(255, 138, 128, 0.1)',
+                        color: '#FF8A80',
+                        border: '1px solid rgba(255, 138, 128, 0.2)',
+                        '&:hover': { bgcolor: '#FF8A80', color: 'white' }
+                    }}
+                    title="Track Order"
+                >
+                    <ReceiptLongIcon />
                 </IconButton>
             </Box>
 
@@ -657,6 +674,30 @@ export const MarketplaceApp = () => {
                         </Button>
                     </Box>
                 </Box>
+            </Drawer>
+
+            {/* Order Track Drawer */}
+            <Drawer
+                container={containerEl}
+                anchor="right"
+                open={isOrderTrackOpen}
+                onClose={() => setIsOrderTrackOpen(false)}
+                sx={{
+                    '& .MuiDrawer-root': { position: 'absolute' },
+                    '& .MuiPaper-root': { position: 'absolute' },
+                    '& .MuiBackdrop-root': { position: 'absolute' }
+                }}
+                ModalProps={{ keepMounted: true, style: { position: 'absolute' } }}
+                PaperProps={{
+                    sx: {
+                        width: { xs: '100%', sm: 440 },
+                        bgcolor: '#0B0000',
+                        borderLeft: '1px solid rgba(255,255,255,0.1)',
+                        height: '100%'
+                    }
+                }}
+            >
+                <OrderTrack onClose={() => setIsOrderTrackOpen(false)} />
             </Drawer>
 
             {/* Snackbar feedback */}
