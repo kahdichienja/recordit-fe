@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
     Box, Typography, Button, Grid, Card, CardContent, CardMedia,
-    Chip, IconButton, Stack, Drawer, Badge, Avatar, TextField,
+    Chip, IconButton, Stack, Badge, Avatar, TextField,
     Paper, Divider, CircularProgress, Alert, Snackbar
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -447,9 +447,8 @@ export const MarketplaceApp = () => {
     const [view, setView] = useState<ViewState>('list');
     const [selectedShop, setSelectedShop] = useState<Shop | null>(null);
     const [isCartOpen, setIsCartOpen] = useState(false);
-    const [containerEl, setContainerEl] = useState<HTMLDivElement | null>(null);
-    const [successOrderId, setSuccessOrderId] = useState<number>(0);
     const [isOrderTrackOpen, setIsOrderTrackOpen] = useState(false);
+    const [successOrderId, setSuccessOrderId] = useState<number>(0);
     const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; type: 'success' | 'warning' }>({
         open: false,
         message: '',
@@ -504,7 +503,6 @@ export const MarketplaceApp = () => {
 
     return (
         <Box
-            ref={setContainerEl}
             sx={{ minHeight: '100%', color: 'white', position: 'relative', overflow: 'hidden' }}
         >
             {/* FABs */}
@@ -568,137 +566,166 @@ export const MarketplaceApp = () => {
                 )}
             </AnimatePresence>
 
-            {/* Cart Drawer */}
-            <Drawer
-                container={containerEl}
-                anchor="right"
-                open={isCartOpen}
-                onClose={() => setIsCartOpen(false)}
-                sx={{
-                    '& .MuiDrawer-root': { position: 'absolute' },
-                    '& .MuiPaper-root': { position: 'absolute' },
-                    '& .MuiBackdrop-root': { position: 'absolute' }
-                }}
-                ModalProps={{ keepMounted: true, style: { position: 'absolute' } }}
-                PaperProps={{
-                    sx: {
-                        width: { xs: '100%', sm: 400 },
-                        bgcolor: '#0B0000',
-                        borderLeft: '1px solid rgba(255,255,255,0.1)',
-                        p: 0,
-                        height: '100%'
-                    }
-                }}
-            >
-                <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                    {/* Drawer Header */}
-                    <Box sx={{ p: 3, borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Typography variant="h5" fontWeight={700}>Your Cart</Typography>
-                        <IconButton onClick={() => setIsCartOpen(false)} sx={{ color: 'white' }}>
-                            <CloseIcon />
-                        </IconButton>
-                    </Box>
-
-                    {cartState.shopId && (
-                        <Box sx={{ px: 3, pt: 2 }}>
-                            <Chip
-                                icon={<StorefrontIcon />}
-                                label={`Shopping from shop #${cartState.shopId}`}
-                                size="small"
-                                sx={{ bgcolor: 'rgba(255,138,128,0.1)', color: '#FF8A80' }}
-                            />
-                        </Box>
-                    )}
-
-                    {/* Cart Items */}
-                    <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 3 }}>
-                        {cartItems.length === 0 ? (
-                            <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', opacity: 0.5 }}>
-                                <ShoppingCartIcon sx={{ fontSize: 60, mb: 2 }} />
-                                <Typography>Your cart is empty</Typography>
-                            </Box>
-                        ) : (
-                            <Stack spacing={3}>
-                                {cartItems.map(item => (
-                                    <Box key={item.productId} sx={{ display: 'flex', gap: 2 }}>
-                                        <Avatar src={PLACEHOLDER_PRODUCT} variant="rounded" sx={{ width: 70, height: 70 }} />
-                                        <Box sx={{ flexGrow: 1 }}>
-                                            <Typography variant="subtitle2" fontWeight={700} noWrap>{item.name}</Typography>
-                                            <Typography variant="caption" color="text.secondary" display="block" mb={1}>
-                                                KES {item.price.toLocaleString()}
-                                            </Typography>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                                                <Typography variant="body2" color="#FF8A80" fontWeight={600}>
-                                                    KES {(item.price * item.quantity).toLocaleString()}
-                                                </Typography>
-                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, bgcolor: 'rgba(255,255,255,0.05)', borderRadius: 1 }}>
-                                                    <IconButton size="small" onClick={() => dispatch(updateQuantity({ productId: item.productId, quantity: item.quantity - 1 }))} sx={{ color: 'white', p: 0.5 }}>
-                                                        <RemoveIcon fontSize="small" />
-                                                    </IconButton>
-                                                    <Typography variant="caption">{item.quantity}</Typography>
-                                                    <IconButton size="small" onClick={() => dispatch(updateQuantity({ productId: item.productId, quantity: item.quantity + 1 }))} sx={{ color: 'white', p: 0.5 }}>
-                                                        <AddIcon fontSize="small" />
-                                                    </IconButton>
-                                                </Box>
-                                            </Box>
-                                        </Box>
-                                        <IconButton
-                                            onClick={() => dispatch(removeFromCart(item.productId))}
-                                            sx={{ color: 'text.secondary', alignSelf: 'flex-start', '&:hover': { color: 'error.main' } }}
-                                        >
-                                            <DeleteOutlineIcon fontSize="small" />
-                                        </IconButton>
-                                    </Box>
-                                ))}
-                            </Stack>
-                        )}
-                    </Box>
-
-                    {/* Drawer Footer */}
-                    <Box sx={{ p: 3, borderTop: '1px solid rgba(255,255,255,0.1)', bgcolor: 'rgba(255,255,255,0.02)' }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
-                            <Typography variant="h6">Total</Typography>
-                            <Typography variant="h6" fontWeight={800} color="#FF8A80">
-                                KES {cartTotal.toLocaleString()}
-                            </Typography>
-                        </Box>
-                        <Button
-                            variant="contained"
-                            fullWidth
-                            size="large"
-                            disabled={cartItems.length === 0}
-                            onClick={() => { setIsCartOpen(false); setView('checkout'); }}
-                            sx={{ bgcolor: '#FF8A80', color: 'black', fontWeight: 700, '&:hover': { bgcolor: '#FF5252' } }}
+            {/* ── Cart Slide Panel ─────────────────────────────────────── */}
+            <AnimatePresence>
+                {isCartOpen && (
+                    <>
+                        {/* Backdrop */}
+                        <MotionBox
+                            key="cart-backdrop"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            onClick={() => setIsCartOpen(false)}
+                            sx={{
+                                position: 'absolute', inset: 0,
+                                bgcolor: 'rgba(0,0,0,0.5)',
+                                zIndex: 20,
+                            }}
+                        />
+                        {/* Panel */}
+                        <MotionBox
+                            key="cart-panel"
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: 'tween', duration: 0.28, ease: 'easeInOut' }}
+                            sx={{
+                                position: 'absolute', top: 0, right: 0, bottom: 0,
+                                width: { xs: '100%', sm: 400 },
+                                bgcolor: '#0B0000',
+                                borderLeft: '1px solid rgba(255,255,255,0.1)',
+                                zIndex: 21,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                overflow: 'hidden',
+                            }}
                         >
-                            Proceed to Checkout
-                        </Button>
-                    </Box>
-                </Box>
-            </Drawer>
+                            {/* Header */}
+                            <Box sx={{ p: 3, borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Typography variant="h5" fontWeight={700}>Your Cart</Typography>
+                                <IconButton onClick={() => setIsCartOpen(false)} sx={{ color: 'white' }}>
+                                    <CloseIcon />
+                                </IconButton>
+                            </Box>
 
-            {/* Order Track Drawer */}
-            <Drawer
-                container={containerEl}
-                anchor="right"
-                open={isOrderTrackOpen}
-                onClose={() => setIsOrderTrackOpen(false)}
-                sx={{
-                    '& .MuiDrawer-root': { position: 'absolute' },
-                    '& .MuiPaper-root': { position: 'absolute' },
-                    '& .MuiBackdrop-root': { position: 'absolute' }
-                }}
-                ModalProps={{ keepMounted: true, style: { position: 'absolute' } }}
-                PaperProps={{
-                    sx: {
-                        width: { xs: '100%', sm: 440 },
-                        bgcolor: '#0B0000',
-                        borderLeft: '1px solid rgba(255,255,255,0.1)',
-                        height: '100%'
-                    }
-                }}
-            >
-                <OrderTrack onClose={() => setIsOrderTrackOpen(false)} />
-            </Drawer>
+                            {cartState.shopId && (
+                                <Box sx={{ px: 3, pt: 2 }}>
+                                    <Chip
+                                        icon={<StorefrontIcon />}
+                                        label={`Shopping from shop #${cartState.shopId}`}
+                                        size="small"
+                                        sx={{ bgcolor: 'rgba(255,138,128,0.1)', color: '#FF8A80' }}
+                                    />
+                                </Box>
+                            )}
+
+                            {/* Items */}
+                            <Box sx={{ flexGrow: 1, overflowY: 'auto', p: 3 }}>
+                                {cartItems.length === 0 ? (
+                                    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', opacity: 0.5 }}>
+                                        <ShoppingCartIcon sx={{ fontSize: 60, mb: 2 }} />
+                                        <Typography>Your cart is empty</Typography>
+                                    </Box>
+                                ) : (
+                                    <Stack spacing={3}>
+                                        {cartItems.map(item => (
+                                            <Box key={item.productId} sx={{ display: 'flex', gap: 2 }}>
+                                                <Avatar src={PLACEHOLDER_PRODUCT} variant="rounded" sx={{ width: 70, height: 70 }} />
+                                                <Box sx={{ flexGrow: 1 }}>
+                                                    <Typography variant="subtitle2" fontWeight={700} noWrap>{item.name}</Typography>
+                                                    <Typography variant="caption" color="text.secondary" display="block" mb={1}>
+                                                        KES {item.price.toLocaleString()}
+                                                    </Typography>
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                        <Typography variant="body2" color="#FF8A80" fontWeight={600}>
+                                                            KES {(item.price * item.quantity).toLocaleString()}
+                                                        </Typography>
+                                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, bgcolor: 'rgba(255,255,255,0.05)', borderRadius: 1 }}>
+                                                            <IconButton size="small" onClick={() => dispatch(updateQuantity({ productId: item.productId, quantity: item.quantity - 1 }))} sx={{ color: 'white', p: 0.5 }}>
+                                                                <RemoveIcon fontSize="small" />
+                                                            </IconButton>
+                                                            <Typography variant="caption">{item.quantity}</Typography>
+                                                            <IconButton size="small" onClick={() => dispatch(updateQuantity({ productId: item.productId, quantity: item.quantity + 1 }))} sx={{ color: 'white', p: 0.5 }}>
+                                                                <AddIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </Box>
+                                                    </Box>
+                                                </Box>
+                                                <IconButton
+                                                    onClick={() => dispatch(removeFromCart(item.productId))}
+                                                    sx={{ color: 'text.secondary', alignSelf: 'flex-start', '&:hover': { color: 'error.main' } }}
+                                                >
+                                                    <DeleteOutlineIcon fontSize="small" />
+                                                </IconButton>
+                                            </Box>
+                                        ))}
+                                    </Stack>
+                                )}
+                            </Box>
+
+                            {/* Footer */}
+                            <Box sx={{ p: 3, borderTop: '1px solid rgba(255,255,255,0.1)', bgcolor: 'rgba(255,255,255,0.02)' }}>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+                                    <Typography variant="h6">Total</Typography>
+                                    <Typography variant="h6" fontWeight={800} color="#FF8A80">
+                                        KES {cartTotal.toLocaleString()}
+                                    </Typography>
+                                </Box>
+                                <Button
+                                    variant="contained" fullWidth size="large"
+                                    disabled={cartItems.length === 0}
+                                    onClick={() => { setIsCartOpen(false); setView('checkout'); }}
+                                    sx={{ bgcolor: '#FF8A80', color: 'black', fontWeight: 700, '&:hover': { bgcolor: '#FF5252' } }}
+                                >
+                                    Proceed to Checkout
+                                </Button>
+                            </Box>
+                        </MotionBox>
+                    </>
+                )}
+            </AnimatePresence>
+
+            {/* ── Order Track Slide Panel ───────────────────────────────── */}
+            <AnimatePresence>
+                {isOrderTrackOpen && (
+                    <>
+                        {/* Backdrop */}
+                        <MotionBox
+                            key="ot-backdrop"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            onClick={() => setIsOrderTrackOpen(false)}
+                            sx={{
+                                position: 'absolute', inset: 0,
+                                bgcolor: 'rgba(0,0,0,0.5)',
+                                zIndex: 20,
+                            }}
+                        />
+                        {/* Panel */}
+                        <MotionBox
+                            key="ot-panel"
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: 'tween', duration: 0.28, ease: 'easeInOut' }}
+                            sx={{
+                                position: 'absolute', top: 0, right: 0, bottom: 0,
+                                width: { xs: '100%', sm: 440 },
+                                bgcolor: '#0B0000',
+                                borderLeft: '1px solid rgba(255,255,255,0.1)',
+                                zIndex: 21,
+                                overflow: 'hidden',
+                            }}
+                        >
+                            <OrderTrack onClose={() => setIsOrderTrackOpen(false)} />
+                        </MotionBox>
+                    </>
+                )}
+            </AnimatePresence>
 
             {/* Snackbar feedback */}
             <Snackbar

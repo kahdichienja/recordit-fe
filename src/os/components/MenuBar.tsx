@@ -54,7 +54,7 @@ export const MenuBar = () => {
                 <IconButton size="small" sx={{ color: 'white', p: 0 }}>
                     <img src={logo} alt="Logo" height={24} width={24} />
                 </IconButton>
-                <Typography variant="body2" fontWeight={700}>RecordIt POS</Typography>
+                <Typography variant="body2" fontWeight={700}>RecordIt</Typography>
 
             </Box>
 
