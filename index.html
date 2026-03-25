@@ -1,18 +1,27 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RecordIt – Smart Inventory & Sales Analytics</title>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RecordIt – Smart Inventory & Sales Analytics</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+</head>
+
+<body>
+  <div id="root"></div>
+  <!-- NoverDesk Chat Widget -->
+  <script>
+    window.NOVERDESK_API_KEY = 'nvd_live_07ed2254f73f44f8f0b0dc74d8fda7d5b739901e265d07d6e91d0f083e1d4e86'; // Replace with your API key
+    window.NOVERDESK_API_URL = 'wss://api.noverdesk.com';
+  </script>
+  <script src="https://widget.noverdesk.com/widget.js" async></script>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>
